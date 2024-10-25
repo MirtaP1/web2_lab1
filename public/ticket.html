@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalji o Ulaznici</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #cce7ff;
+    }
+</style>
+  
+<body>
+    <div class="ticket-container">
+        <h1>Detalji o Ulaznici</h1>
+        <div id="ticketDetails">
+            <p><strong>Ime:</strong> <span id="firstName"></span></p>
+            <p><strong>Prezime:</strong> <span id="lastName"></span></p>
+            <p><strong>OIB:</strong> <span id="vatin"></span></p>
+            <p><strong>Created at:</strong> <span id="created_at"></span></p>
+        </div>
+
+        <button id="logoutButton">Logout</button>
+        <script>
+            document.getElementById('logoutButton').addEventListener('click', function() {
+              window.location.href = '/logout';
+            });
+        </script>
+    </div>
+
+    <script>
+        const ticketId = window.location.pathname.split('/').pop();
+        console.log(ticketId);
+        
+        fetch(`/api/tickets/${ticketId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('ticketDetails').textContent = 'Ulaznica nije pronađena';
+                } else {
+                    document.getElementById('vatin').textContent = data.vatin;
+                    document.getElementById('firstName').textContent = data.firstName;
+                    document.getElementById('lastName').textContent = data.lastName;
+                    document.getElementById('created_at').textContent = data.created_at;
+                }
+            })
+            .catch(error => {
+                console.error('Greška:', error);
+                document.getElementById('ticketDetails').textContent = 'Greška prilikom dohvaćanja podataka o ulaznici.';
+            });
+
+    </script>
+</body>
+</html>
