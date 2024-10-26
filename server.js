@@ -74,7 +74,7 @@ app.get('/api/ticket-count', async (req, res) => {
   }
 });
 
-app.get('/api/tickets/:ticketId', async (req, res) => {
+app.get('/api/tickets/:ticketId', requiresAuth(), async (req, res) => {
   const ticketId = req.params.ticketId;
 
   try {
@@ -85,11 +85,13 @@ app.get('/api/tickets/:ticketId', async (req, res) => {
           return res.status(404).json({ error: 'Ulaznica nije pronađena' });
       }
       const ticket = result.rows[0];
+      const userEmail = req.oidc.user.email;
       res.json({
           vatin: ticket.vatin,
           firstName: ticket.firstname,
           lastName: ticket.lastname,
-          created_at: ticket.created_at
+          created_at: ticket.created_at,
+          email: userEmail
       });
   } catch (err) {
       console.error(err);

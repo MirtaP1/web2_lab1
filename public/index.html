@@ -77,7 +77,16 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Greška pri generiranju ulaznice');
+                    if (response.status === 400) {
+                        const errorData = await response.json();
+                        alert(`Greška pri generiranju ulaznice ili je generiran maksimalni broj ulaznica za ovaj OIB.`);
+                    } else if (response.status === 500) {
+                        alert('Greška u sustavu. Pokušajte ponovno kasnije.');
+                    }
+                    document.getElementById('vatin').value = '';
+                    document.getElementById('firstName').value = '';
+                    document.getElementById('lastName').value = '';
+                    return;
                 }
 
                 const result = await response.json();
@@ -85,9 +94,7 @@
                 const qrCodeImage = document.getElementById('qrCodeImage');
 
                 qrCodeImage.src = result.qrCode;
-
                 qrCodeContainer.style.display = 'block';
-
                 
                 fetch('/api/ticket-count')
                     .then(response => response.json())
@@ -97,7 +104,10 @@
 
             } catch (error) {
                 console.error('Greška:', error);
-                alert('Dogodila se greška prilikom generiranja ulaznice ili je generiran maksimalni broj ulaznica za ovaj OIB.');
+                alert('Dogodila se greška, pokušajte ponovno.');
+                document.getElementById('vatin').value = '';
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
             }
         });
     </script>
