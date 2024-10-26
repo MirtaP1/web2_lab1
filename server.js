@@ -25,9 +25,8 @@ const sslOptions = {
 //  });
 if (externalUrl) {
   const hostname = '0.0.0.0'; // ne 127.0.0.1
-  https.createServer(sslOptions, app)
-    .listen(port, hostname, () => {
-      console.log(`Server running at ${externalUrl}/`);
+  app.listen(port, hostname, () => {
+    console.log(`Server locally running at http://${hostname}:${port}/ and from outside on ${externalUrl}`);    
     });
 } else {
   https.createServer(sslOptions, app)
@@ -40,7 +39,7 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.SECRET,
-  baseURL: process.env.BASE_URL,
+  baseURL: externalUrl || `https://localhost:${port}`,
   clientID: process.env.CLIENT_ID,
   issuerBaseURL: process.env.ISSUER_BASE_URL,
 };
