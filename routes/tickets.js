@@ -4,6 +4,7 @@ const QRCode = require('qrcode');
 const router = express.Router();
 const pool = require('../db');
 const { requiresAuth } = require('express-openid-connect');
+const externalUrl = process.env.RENDER_EXTERNAL_URL;
 
 
 router.post('/generate', async (req, res) => {
@@ -29,7 +30,7 @@ router.post('/generate', async (req, res) => {
       [ticketId, vatin, firstName, lastName, createdAt]
     );
 
-    const ticketUrl = `https://localhost:3000/tickets/${ticketId}`;
+    const ticketUrl = `${externalUrl}/tickets/${ticketId}`;
     
     const qrCode = await QRCode.toDataURL(ticketUrl);
     
