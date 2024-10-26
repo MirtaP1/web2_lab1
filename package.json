@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean; tsc; npm run copy-views; npm run copy-views",
+    "build": "npm run clean; tsc",
     "start": "node server.js"
   },
   "keywords": [],
