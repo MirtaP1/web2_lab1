@@ -10,17 +10,31 @@ const { requiresAuth } = require('express-openid-connect');
 dotenv.config();
 
 const app = express();
-const port = 3000;
+//const port = 3000;
+const externalUrl = process.env.RENDER_EXTERNAL_URL;
+const port = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 const sslOptions = {
   key: fs.readFileSync('./server.key'),
   cert: fs.readFileSync('./server.cert')
 };
 
-https.createServer(sslOptions, app)
-  .listen(port, () => {
+//https.createServer(sslOptions, app)
+//  .listen(port, () => {
+//      console.log(`Server running at https://localhost:${port}/`);
+//  });
+if (externalUrl) {
+  const hostname = '0.0.0.0'; // ne 127.0.0.1
+  https.createServer(sslOptions, app)
+    .listen(port, hostname, () => {
+      console.log(`Server running at ${externalUrl}/`);
+    });
+} else {
+  https.createServer(sslOptions, app)
+    .listen(port, () => {
       console.log(`Server running at https://localhost:${port}/`);
-  });
+    });
+}
 
 const config = {
   authRequired: false,
@@ -100,12 +114,9 @@ app.get('/api/tickets/:ticketId', requiresAuth(), async (req, res) => {
 });
   
 app.use(express.json());
-
 app.use((req, res, next) => {
   console.log(`Zahtev za: ${req.url}`);
   next();
 });
-
-
 app.use('/tickets', tickets);
 app.use(express.static('public'));
