@@ -10,7 +10,6 @@ const { requiresAuth } = require('express-openid-connect');
 dotenv.config();
 
 const app = express();
-//const port = 3000;
 const externalUrl = process.env.RENDER_EXTERNAL_URL;
 const port = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
@@ -19,12 +18,8 @@ const sslOptions = {
   cert: fs.readFileSync('./server.cert')
 };
 
-//https.createServer(sslOptions, app)
-//  .listen(port, () => {
-//      console.log(`Server running at https://localhost:${port}/`);
-//  });
 if (externalUrl) {
-  const hostname = '0.0.0.0'; // ne 127.0.0.1
+  const hostname = '0.0.0.0';
   app.listen(port, hostname, () => {
     console.log(`Server locally running at http://${hostname}:${port}/ and from outside on ${externalUrl}`);    
     });
@@ -71,7 +66,7 @@ app.get('/tickets/:ticketId', requiresAuth(), async (req, res) => {
   res.sendFile(__dirname + '/public/ticket.html', (err) => {
     if (err) {
       console.log('Greška prilikom slanja filea:', err);
-      res.status(500).send('Greška prilikom učitavanja stranice');
+      res.status(500).json({ status: 500, message: 'Greška prilikom učitavanja stranice', error: err.message });
     }
   });
 });
@@ -83,7 +78,7 @@ app.get('/api/ticket-count', async (req, res) => {
     res.json({ count });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Database error' });
+    res.status(500).json({ status: 500, message: 'Greška u bazi podataka', error: err.message });
   }
 });
 
@@ -95,7 +90,7 @@ app.get('/api/tickets/:ticketId', requiresAuth(), async (req, res) => {
       console.log(result.rows[0]);
 
       if (result.rows.length === 0) {
-          return res.status(404).json({ error: 'Ulaznica nije pronađena' });
+        return res.status(404).json({ status: 404, message: 'Ulaznica nije pronađena' });
       }
       const ticket = result.rows[0];
       const userEmail = req.oidc.user.email;
@@ -108,7 +103,7 @@ app.get('/api/tickets/:ticketId', requiresAuth(), async (req, res) => {
       });
   } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Greška na serveru' });
+      res.status(500).json({ status: 500, message: 'Greška na serveru', error: err.message });
   }
 });
   

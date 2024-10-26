@@ -11,7 +11,7 @@ router.post('/generate', async (req, res) => {
   const { vatin, firstName, lastName } = req.body;
 
   if (!vatin || !firstName || !lastName) {
-    return res.status(400).json({ message: 'Nedostaju potrebna polja' });
+    return res.status(400).json({ status: 400, message: 'Nedostaju potrebna polja' });
   }
 
   try {
@@ -19,7 +19,7 @@ router.post('/generate', async (req, res) => {
     const ticketCount = parseInt(result.rows[0].count, 10);
     
     if (ticketCount >= 3) {
-      return res.status(400).json({ message: 'Maksimalan broj ulaznica za ovaj OIB' });
+      return res.status(400).json({ status: 400, message: 'Maksimalan broj ulaznica za ovaj OIB' });
     }
 
     const ticketId = uuidv4();
@@ -36,8 +36,8 @@ router.post('/generate', async (req, res) => {
     
     res.json({ qrCode, ticketId });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Greška u bazi podataka', error: err.message });
+    console.error('Greška u bazi podataka:', err);
+    res.status(500).json({ status: 500, message: 'Greška u bazi podataka', error: err.message });
   }
 });
 
@@ -49,13 +49,13 @@ router.get('/:id', async (req, res) => {
     const ticket = result.rows[0];
 
     if (!ticket) {
-      return res.status(404).json({ error: 'Ulaznica nije pronađena' });
+      return res.status(404).json({ status: 404, message: 'Ulaznica nije pronađena' });
     }
 
     res.json(ticket);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Greška u bazi podataka', error: err.message });
+    res.status(500).json({ status: 500, message: 'Greška u bazi podataka', error: err.message });
   }
 });
   

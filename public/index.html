@@ -77,12 +77,8 @@
                 });
 
                 if (!response.ok) {
-                    if (response.status === 400) {
-                        const errorData = await response.json();
-                        alert(`Greška pri generiranju ulaznice ili je generiran maksimalni broj ulaznica za ovaj OIB.`);
-                    } else if (response.status === 500) {
-                        alert('Greška u sustavu. Pokušajte ponovno kasnije.');
-                    }
+                    const errorData = await response.json();
+                    alert(`Status kod: ${response.status} - ${errorData.message || 'Greška pri generiranju ulaznice ili je generiran maksimalni broj ulaznica za ovaj OIB.'}`);
                     document.getElementById('vatin').value = '';
                     document.getElementById('firstName').value = '';
                     document.getElementById('lastName').value = '';
