@@ -10,39 +10,6 @@
     <h1>Aplikacija za generiranje ulaznica</h1>
     <h3>Ukupan broj generiranih ulaznica: </h3>
     <p id="ticketCount"></p>
-    <div id="userInfo">
-        <div>
-            <h3>Prijava za korisnike: </h3>
-            <button id="loginButton">Login</button>
-        </div>
-        <div>
-            <h3>Odjava za korisnike: </h3>
-            <button id="logoutButton">Logout</button>
-        </div>
-    </div>  
-
-    <h2>Generiraj ulaznicu</h2>
-    <form id="ticketForm">
-        <div class="form-group">
-            <label for="vatin">OIB:</label>
-            <input type="text" id="vatin" name="vatin" required>
-        </div>
-        <div class="form-group">
-            <label for="firstName">Ime:</label>
-            <input type="text" id="firstName" name="firstName" required>
-        </div>
-        <div class="form-group">
-            <label for="lastName">Prezime:</label>
-            <input type="text" id="lastName" name="lastName" required>
-        </div>
-        <button type="submit">Generiraj ulaznicu</button>
-    </form>
-
-    <div id="qrCodeContainer" style="display: none;">
-        <h3>Vaša ulaznica:</h3>
-        <img id="qrCodeImage" alt="QR kod" />
-    </div>
-
     <script>
         fetch('/api/ticket-count')
             .then(response => response.json())
@@ -53,59 +20,6 @@
                 console.error('Greška pri dohvaćanju broja ulaznica:', error);
                 document.getElementById('ticketCount').textContent = 'Greška pri učitavanju';
             });
-        document.getElementById('loginButton').addEventListener('click', () => {
-            window.location.href = '/login';
-        });
-        document.getElementById('logoutButton').addEventListener('click', () => {
-            window.location.href = '/logout';
-        });
-
-        document.getElementById('ticketForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const vatin = document.getElementById('vatin').value;
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-
-            try {
-                const response = await fetch('/tickets/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ vatin, firstName, lastName })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    alert(`Status kod: ${response.status} - ${errorData.message || 'Greška pri generiranju ulaznice ili je generiran maksimalni broj ulaznica za ovaj OIB.'}`);
-                    document.getElementById('vatin').value = '';
-                    document.getElementById('firstName').value = '';
-                    document.getElementById('lastName').value = '';
-                    return;
-                }
-
-                const result = await response.json();
-                const qrCodeContainer = document.getElementById('qrCodeContainer');
-                const qrCodeImage = document.getElementById('qrCodeImage');
-
-                qrCodeImage.src = result.qrCode;
-                qrCodeContainer.style.display = 'block';
-                
-                fetch('/api/ticket-count')
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('ticketCount').textContent = data.count;
-                    });
-
-            } catch (error) {
-                console.error('Greška:', error);
-                alert('Dogodila se greška, pokušajte ponovno.');
-                document.getElementById('vatin').value = '';
-                document.getElementById('firstName').value = '';
-                document.getElementById('lastName').value = '';
-            }
-        });
     </script>
 </body>
 </html>

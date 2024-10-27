@@ -9,6 +9,17 @@ const { getM2MToken } = require('../auth');
 
 
 router.post('/generate', async (req, res) => {
+  console.log('Primljen zahtjev za generiranje ulaznice');
+
+  let token;
+  try {
+    token = await getM2MToken();
+    console.log('M2M token:', token);
+  } catch (error) {
+    console.error('Greška prilikom dobijanja M2M tokena:', error);
+    return res.status(500).json({ status: 500, message: 'Greška prilikom dobijanja M2M tokena', error: error.message });
+  }
+
   const { vatin, firstName, lastName } = req.body;
 
   if (!vatin || !firstName || !lastName) {
@@ -33,15 +44,6 @@ router.post('/generate', async (req, res) => {
 
     const ticketUrl = `${externalUrl}/tickets/${ticketId}`;
     const qrCode = await QRCode.toDataURL(ticketUrl);
-
-    let token;
-    try {
-      token = await getM2MToken();
-      console.log('M2M token:', token);
-    } catch (error) {
-      console.error('Greška prilikom dobijanja M2M tokena:', error);
-      return res.status(500).json({ status: 500, message: 'Greška prilikom dobijanja M2M tokena', error: error.message });
-    }
     
     res.json({ qrCode, ticketId });
   } catch (err) {

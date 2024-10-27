@@ -95,16 +95,7 @@ app.get('/api/tickets/:ticketId', requiresAuth(), async (req, res) => {
       }
       const ticket = result.rows[0];
       const userEmail = req.oidc.user.email;
-
-      let token;
-      try {
-        token = await getM2MToken();
-        console.log('M2M token:', token);
-      } catch (error) {
-        console.error('Greška prilikom dobijanja M2M tokena:', error);
-        return res.status(500).json({ status: 500, message: 'Greška prilikom dobijanja M2M tokena', error: error.message });
-      }
-
+      
       res.json({
           vatin: ticket.vatin,
           firstName: ticket.firstname,
