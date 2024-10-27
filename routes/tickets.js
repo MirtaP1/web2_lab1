@@ -5,6 +5,7 @@ const router = express.Router();
 const pool = require('../db');
 const { requiresAuth } = require('express-openid-connect');
 const externalUrl = process.env.RENDER_EXTERNAL_URL;
+const { getM2MToken } = require('../auth'); 
 
 
 router.post('/generate', async (req, res) => {
@@ -31,8 +32,16 @@ router.post('/generate', async (req, res) => {
     );
 
     const ticketUrl = `${externalUrl}/tickets/${ticketId}`;
-    
     const qrCode = await QRCode.toDataURL(ticketUrl);
+
+    let token;
+    try {
+      token = await getM2MToken();
+      console.log('M2M token:', token);
+    } catch (error) {
+      console.error('Greška prilikom dobijanja M2M tokena:', error);
+      return res.status(500).json({ status: 500, message: 'Greška prilikom dobijanja M2M tokena', error: error.message });
+    }
     
     res.json({ qrCode, ticketId });
   } catch (err) {
